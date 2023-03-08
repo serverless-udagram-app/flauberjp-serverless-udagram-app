@@ -1,4 +1,4 @@
-service: serverless-udagram-app
+service: flauberjp-serverless-udagram-app
 frameworkVersion: "3"
 
 plugins:
