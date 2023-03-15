@@ -37,4 +37,5 @@ curl https://xxxxxxxxx.execute-api.us-east-1.amazonaws.com/
 
 # References
 
-- Project based on [Serverless v3 _aws-node-http-api-typescript_ template](https://github.com/serverless/examples/aws-node-http-api-typescript)
+- Project based on [Serverless v3 _aws-node-http-api-typescript_ template](https://github.com/serverless/examples/tree/v3/aws-node-http-api-typescript)
+  > serverless create --template-url https://github.com/serverless/examples/tree/v3/aws-node-http-api-typescript
