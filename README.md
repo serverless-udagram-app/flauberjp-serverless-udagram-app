@@ -34,6 +34,8 @@ curl https://xxxxxxxxx.execute-api.us-east-1.amazonaws.com/
 
 - [Request validation using serverless framework](https://stackoverflow.com/a/56332035)
   - [Serverless Request Schema Validators](https://www.serverless.com/framework/docs/providers/aws/events/apigateway/#request-schema-validators)
+- [Referencing websocket api id in serverless template](https://repost.aws/questions/QUEO4tL0J6SvyLWeSAB2cv6g/referencing-websocket-api-id-in-serverless-template)
+  - _Ref: 'WebsocketsApi'_
 
 # References
 
