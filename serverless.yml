@@ -107,6 +107,14 @@ functions:
       - websocket:
           route: $disconnect
 
+  SyncWithElasticSearch:
+    description: SyncWithElasticSearch using OpenSearch
+    handler: src/lambda/dynamodb/openSearchSync.handler
+    events:
+      - stream:
+        type: dynamodb
+        arn: !GetAtt ImagesDynamoDBTable.StreamArn
+
 resources:
   Resources:
     GroupsDynamoDBTable:
@@ -138,6 +146,8 @@ resources:
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.IMAGES_TABLE}
+        StreamSpecification:
+          StreamViewType: NEW_IMAGE
         GlobalSecondaryIndexes:
           - IndexName: ${self:provider.environment.IMAGE_ID_INDEX}
             KeySchema:
@@ -201,3 +211,27 @@ resources:
               Action:
                 - "S3:GetObject"
               Resource: "arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*"
+
+    ImagesSearch:
+      Type: AWS::OpenSearchService::Domain
+      Properties:
+        DomainName: image-search-${self:provider.stage}
+        EngineVersion: "OpenSearch_1.0"
+        ClusterConfig:
+          DedicatedMasterEnabled: false
+          InstanceCount: "1"
+          ZoneAwarenessEnabled: false
+          InstanceType: "t3.small.search"
+        EBSOptions:
+          EBSEnabled: true
+          VolumeSize: "20"
+          VolumeType: "gp2"
+        AccessPolicies:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Principal:
+                AWS:
+                  - arn:aws:iam::723504687638:root
+              Action: "es:*"
+              Resource: !Sub "arn:aws:es:${self:provider.region}:${AWS::AccountId}:domain/images-search-${self:provider.stage}/*"
