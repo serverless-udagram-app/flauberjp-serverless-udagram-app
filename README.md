@@ -36,6 +36,15 @@ curl https://xxxxxxxxx.execute-api.us-east-1.amazonaws.com/
   - [Serverless Request Schema Validators](https://www.serverless.com/framework/docs/providers/aws/events/apigateway/#request-schema-validators)
 - [Referencing websocket api id in serverless template](https://repost.aws/questions/QUEO4tL0J6SvyLWeSAB2cv6g/referencing-websocket-api-id-in-serverless-template)
   - _Ref: 'WebsocketsApi'_
+- [Unable to write text to S3 bucket](https://stackoverflow.com/a/58614241/6771132)
+  > var params = {
+        Bucket: 'bucket-write-logs-to',
+        Key: 'example2.txt',
+        Body: Buffer.from(JSON.stringify(event), 'utf8')
+        };
+  var x = await s3.putObject(params).promise();
+- [Cannot use import statement outside a module in Lambda function](https://stackoverflow.com/a/61780186/6771132)
+  > const uuid = require('uuid'); // <-- how to import
 
 # References
 
