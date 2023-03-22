@@ -140,13 +140,13 @@ functions:
           topicName: ${self:custom.topicName}
 
   ConnectHandler:
-    handler: src/websocket/connect.handler
+    handler: src/lambda/websocket/connect.handler
     events:
       - websocket:
           route: $connect
 
   DisconnectHandler:
-    handler: src/websocket/disconnect.handler
+    handler: src/lambda/websocket/disconnect.handler
     events:
       - websocket:
           route: $disconnect
