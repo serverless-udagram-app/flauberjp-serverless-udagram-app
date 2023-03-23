@@ -2,9 +2,11 @@
   "name": "flauberjp-serverless-udagram-app",
   "version": "1.0.0",
   "dependencies": {
+    "@types/jsonwebtoken": "^9.0.1",
     "elasticsearch": "^15.5.0",
     "http-aws-es": "^6.0.0",
     "jimp": "^0.22.7",
+    "jsonwebtoken": "^9.0.0",
     "source-map-support": "^0.5.11",
     "uuid": "^3.3.2"
   },

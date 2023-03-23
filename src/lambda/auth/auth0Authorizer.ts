@@ -4,38 +4,60 @@ import {
   CustomAuthorizerHandler,
 } from "aws-lambda";
 import "source-map-support/register";
+import { verify } from "jsonwebtoken";
+import { JwtToken } from "../../auth/JWTToken";
+
+const auth0Secret = process.env.AUTH_0_SECRET;
 
 export const handler: CustomAuthorizerHandler = async (
-  event: CustomAuthorizerEvent
+  event: CustomAuthorizerEvent,
+  context
 ): Promise<CustomAuthorizerResult> => {
   try {
-    verifyToken(event.authorizationToken);
+    const decodedToken = verifyToken(event.authorizationToken);
     console.log("User was authorized!");
     return {
-      principalId: "user",
-      Statement: [
-        {
-          action: "execute-api:Invoke",
-          Effect: "Allow",
-          Resource: "*",
-        },
-      ],
+      principalId: decodedToken.sub,
+      policyDocument: {
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Action: "execute-api:Invoke",
+            Effect: "Allow",
+            Resource: "*",
+          },
+        ],
+      },
     };
   } catch (e) {
     console.log("User was not authorized", e.message);
     return {
       principalId: "user",
-      Statement: [
-        {
-          action: "execute-api:Invoke",
-          Effect: "Deny",
-          Resource: "*",
-        },
-      ],
+      policyDocument: {
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Action: "execute-api:Invoke",
+            Effect: "Deny",
+            Resource: "*",
+          },
+        ],
+      },
     };
   }
 };
 
-function verifyToken(authorizationToken: string | undefined) {
-  throw new Error("Function not implemented.");
+function verifyToken(authHeader: string | undefined): JwtToken {
+  if (!authHeader) {
+    throw new Error("No Authorization Header.");
+  }
+
+  if (!authHeader.toLowerCase().startsWith("bearer ")) {
+    throw new Error("Invalid Authorization Header.");
+  }
+
+  const split = authHeader.split(" ");
+  const token = split[1];
+
+  return verify(token, auth0Secret) as JwtToken;
 }

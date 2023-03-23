@@ -19,6 +19,7 @@ provider:
     IMAGES_S3_BUCKET: flauberjp-serverless-udagram-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION_IN_MINUTES: 5
     THUMBNAILS_S3_BUCKET: flauberjp-serverless-udagram-thumbnail-${self:provider.stage}
+    AUTH_0_SECRET: <Auth0 Client ID>
 
   iam:
     role:
@@ -74,12 +75,16 @@ custom:
         schema: ${file(models/create-image-request.json)}
 
 functions:
+  Auth:
+    handler: src/lambda/auth/auth0Authorizer.handler
+
   CreateGroup:
     handler: src/lambda/http/createGroup.handler
     events:
       - http:
           method: post
           path: groups
+          authorizer: Auth
           request:
             schemas:
               application/json: ${file(models/create-group-request.json)}
@@ -97,6 +102,7 @@ functions:
       - http:
           method: post
           path: groups/{groupId}/images
+          authorizer: Auth
           request:
             schemas:
               application/json: ${file(models/create-image-request.json)}
@@ -161,6 +167,17 @@ functions:
 
 resources:
   Resources:
+    GatewayResponseDefault4XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: "ApiGatewayRestApi"
+
     GroupsDynamoDBTable:
       Type: AWS::DynamoDB::Table
       Properties:
