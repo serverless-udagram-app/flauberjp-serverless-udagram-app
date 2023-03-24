@@ -68,10 +68,7 @@ async function verifyToken(authHeader: string | undefined): Promise<JwtToken> {
   console.log("token", token);
 
   console.log("secretId", secretId);
-  const secretObject: any = await getSecret();
-  console.log("secretObject", JSON.stringify(secretObject));
-  console.log("secretField", secretField);
-  const secret = secretObject[secretField];
+  const secret = await getSecret();
   console.log("secret", secret);
 
   return verify(token, secret) as JwtToken;
@@ -82,7 +79,17 @@ async function getSecret() {
     return cachedSecret;
   }
 
-  const data = await client.getSecretValue({ SecretId: secretId }).promise();
+  const secretObject = await client
+    .getSecretValue({ SecretId: secretId })
+    .promise();
+  console.log("secretObject", JSON.stringify(secretObject));
 
-  return JSON.parse(cachedSecret);
+  const SecretsManagerResponse = JSON.parse(secretObject.SecretString);
+
+  console.log("SecretsManagerResponse", JSON.stringify(SecretsManagerResponse));
+  const secret = SecretsManagerResponse.auth0Secret;
+
+  console.log("secret", secret);
+
+  return secret;
 }
