@@ -92,6 +92,17 @@ functions:
     events:
       - http:
           method: post
+          cors:
+            origin: "*" # <-- Specify allowed origin
+            headers: # <-- Specify allowed headers
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - Access-Control-Allow-Origin
+            allowCredentials: true
           path: groups
           authorizer: Auth
           request:
@@ -181,7 +192,7 @@ resources:
       Properties:
         ResponseParameters:
           gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
-          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
           gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST'"
         ResponseType: DEFAULT_4XX
         RestApiId:
@@ -274,29 +285,29 @@ resources:
                 - "S3:GetObject"
               Resource: "arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*"
 
-    ImagesSearch:
-      Type: AWS::OpenSearchService::Domain
-      Properties:
-        DomainName: image-search-${self:provider.stage}
-        EngineVersion: "OpenSearch_1.0"
-        ClusterConfig:
-          DedicatedMasterEnabled: false
-          InstanceCount: "1"
-          ZoneAwarenessEnabled: false
-          InstanceType: "t3.small.search"
-        EBSOptions:
-          EBSEnabled: true
-          VolumeSize: "20"
-          VolumeType: "gp2"
-        AccessPolicies:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Principal:
-                AWS:
-                  - arn:aws:iam::723504687638:root
-              Action: "es:*"
-              Resource: !Sub "arn:aws:es:${self:provider.region}:${AWS::AccountId}:domain/images-search-${self:provider.stage}/*"
+    #    ImagesSearch:
+    #      Type: AWS::OpenSearchService::Domain
+    #      Properties:
+    #        DomainName: image-search-${self:provider.stage}
+    #        EngineVersion: "OpenSearch_1.0"
+    #        ClusterConfig:
+    #          DedicatedMasterEnabled: false
+    #          InstanceCount: "1"
+    #          ZoneAwarenessEnabled: false
+    #          InstanceType: "t3.small.search"
+    #        EBSOptions:
+    #          EBSEnabled: true
+    #          VolumeSize: "20"
+    #          VolumeType: "gp2"
+    #        AccessPolicies:
+    #          Version: "2012-10-17"
+    #          Statement:
+    #            - Effect: "Allow"
+    #              Principal:
+    #                AWS:
+    #                  - arn:aws:iam::723504687638:root
+    #              Action: "es:*"
+    #              Resource: !Sub "arn:aws:es:${self:provider.region}:${AWS::AccountId}:domain/images-search-${self:provider.stage}/*"
 
     SNSTopicPolicy:
       Type: AWS::SNS::TopicPolicy

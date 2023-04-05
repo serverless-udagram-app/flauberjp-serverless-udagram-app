@@ -16,6 +16,7 @@ export const handler = middy(
     context
   ): Promise<CustomAuthorizerResult> => {
     try {
+      console.log("secretId", secretId, "secretField", secretField);
       const decodedToken = verifyToken(
         event.authorizationToken,
         context.AUTH0_SECRET[secretField]
