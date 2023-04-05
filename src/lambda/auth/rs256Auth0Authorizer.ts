@@ -3,6 +3,7 @@ import "source-map-support/register";
 
 import { verify } from "jsonwebtoken";
 import { JwtToken } from "../../auth/JWTToken";
+import { getJwtToken, getUserId } from "../../auth/utils";
 
 const cert = `...`;
 
@@ -10,10 +11,13 @@ export const handler = async (
   event: CustomAuthorizerEvent
 ): Promise<CustomAuthorizerResult> => {
   try {
-    const decodedToken = verifyToken(event.authorizationToken);
+    const jwtToken = getJwtToken(event.authorizationToken);
+    verifyToken(jwtToken);
+    const userId = getUserId(jwtToken);
+
     console.log("User was authorized!");
     return {
-      principalId: decodedToken.sub,
+      principalId: userId,
       policyDocument: {
         Version: "2012-10-17",
         Statement: [
@@ -43,22 +47,10 @@ export const handler = async (
   }
 };
 
-function verifyToken(authHeader: string | undefined): JwtToken {
-  if (!authHeader) {
-    throw new Error("No Authorization Header.");
-  }
-
-  if (!authHeader.toLowerCase().startsWith("bearer ")) {
-    throw new Error("Invalid Authorization Header.");
-  }
-
-  const split = authHeader.split(" ");
-  const token = split[1];
-  console.log("token", token);
-
-  return verify(
+function verifyToken(token: string): void {
+  verify(
     token,
     cert, // A certificate copied from Auth0 website
     { algorithms: ["RS256"] } // We need to specify that we use the RS256 algorithm
-  ) as JwtToken;
+  );
 }
