@@ -19,9 +19,6 @@ provider:
     IMAGES_S3_BUCKET: flauberjp-serverless-udagram-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION_IN_MINUTES: 5
     THUMBNAILS_S3_BUCKET: flauberjp-serverless-udagram-thumbnail-${self:provider.stage}
-    AUTH_0_SECRET_ID: Auth0Secret-${self:provider.stage}
-    AUTH_0_SECRET_FIELD: auth0Secret
-
   iam:
     role:
       statements:
@@ -55,14 +52,6 @@ provider:
             - dynamodb:PutItem
             - dynamodb:DeleteItem
           Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.CONNECTIONS_TABLE}
-        - Effect: Allow
-          Action:
-            - secretsmanager:GetSecretValue
-          Resource: !Ref Auth0Secret
-        - Effect: Allow
-          Action:
-            - kms:Decrypt
-          Resource: !GetAtt KMSKey.Arn
 
   httpApi:
     cors: true
@@ -87,9 +76,6 @@ functions:
   RS256Auth:
     handler: src/lambda/auth/rs256Auth0Authorizer.handler
 
-  Auth:
-    handler: src/lambda/auth/auth0Authorizer.handler
-
   CreateGroup:
     handler: src/lambda/http/createGroup.handler
     events:
@@ -107,7 +93,7 @@ functions:
               - Access-Control-Allow-Origin
             allowCredentials: true
           path: groups
-          authorizer: Auth
+          authorizer: RS256Auth
           request:
             schemas:
               application/json: ${file(models/create-group-request.json)}
@@ -125,7 +111,7 @@ functions:
       - http:
           method: post
           path: groups/{groupId}/images
-          authorizer: Auth
+          authorizer: RS256Auth
           request:
             schemas:
               application/json: ${file(models/create-image-request.json)}
@@ -339,37 +325,3 @@ resources:
       Properties:
         DisplayName: Image bucket topic
         TopicName: ${self:custom.topicName}
-
-    KMSKey:
-      Type: AWS::KMS::Key
-      Properties:
-        Description: KMS key to encrypt Auth0 secret
-        KeyPolicy:
-          Version: "2012-10-17"
-          Id: key-default-1
-          Statement:
-            - Sid: Allow administration of the key
-              Effect: Allow
-              Principal:
-                AWS:
-                  Fn::Join:
-                    - ":"
-                    - - "arn:aws:iam:"
-                      - Ref: AWS::AccountId
-                      - "root"
-              Action:
-                - "kms:*"
-              Resource: "*"
-
-    KMSKeyAlias:
-      Type: AWS::KMS::Alias
-      Properties:
-        AliasName: alias/auth0Key-${self:provider.stage}
-        TargetKeyId: !Ref KMSKey
-
-    Auth0Secret:
-      Type: AWS::SecretsManager::Secret
-      Properties:
-        Name: ${self:provider.environment.AUTH_0_SECRET_ID}
-        Description: Auth0 secret
-        KmsKeyId: !Ref KMSKey
