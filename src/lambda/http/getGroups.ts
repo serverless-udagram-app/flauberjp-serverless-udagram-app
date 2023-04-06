@@ -11,7 +11,7 @@ export const handler: APIGatewayProxyHandler = async (
 ): Promise<APIGatewayProxyResult> => {
   console.log("Processing event: ", event);
 
-  const groups = await getAllGroups();
+  const items = await getAllGroups();
 
   return {
     statusCode: 200,
@@ -19,7 +19,7 @@ export const handler: APIGatewayProxyHandler = async (
       "Access-Control-Allow-Origin": "*",
     },
     body: JSON.stringify({
-      groups,
+      items,
     }),
   };
 };
