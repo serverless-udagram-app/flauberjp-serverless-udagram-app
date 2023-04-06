@@ -2,7 +2,6 @@ import { CustomAuthorizerEvent, CustomAuthorizerResult } from "aws-lambda";
 import "source-map-support/register";
 
 import { verify } from "jsonwebtoken";
-import { JwtToken } from "../../auth/JWTToken";
 import { getJwtToken, getUserId } from "../../auth/utils";
 
 const cert = `...`;
