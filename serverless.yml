@@ -3,6 +3,8 @@ frameworkVersion: "3"
 
 plugins:
   - serverless-plugin-typescript
+  - serverless-dynamodb-local
+  - serverless-offline
 
 provider:
   name: aws
@@ -71,6 +73,22 @@ custom:
       - name: ImageRequest
         contentType: application/json
         schema: ${file(models/create-image-request.json)}
+  serverless-offline:
+    httpPort: 3003
+  dynamodb:
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+      seed: true
+    stages:
+      - dev
+    seed:
+      # Categories of data. We can optionally load just some of them
+      groups:
+        sources:
+          - table: GroupsTable-${self:provider.stage}
+            sources: [./seed/groups.json]
 
 functions:
   RS256Auth:
@@ -104,6 +122,17 @@ functions:
       - http:
           method: get
           path: groups
+          cors:
+            origin: "*" # <-- Specify allowed origin
+            headers: # <-- Specify allowed headers
+              - Access-Control-Allow-Origin
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
 
   CreateImage:
     handler: src/lambda/http/createImage.handler

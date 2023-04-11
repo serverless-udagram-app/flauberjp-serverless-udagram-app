@@ -45,6 +45,8 @@ curl https://xxxxxxxxx.execute-api.us-east-1.amazonaws.com/
   var x = await s3.putObject(params).promise();
 - [Cannot use import statement outside a module in Lambda function](https://stackoverflow.com/a/61780186/6771132)
   > const uuid = require('uuid'); // <-- how to import
+- [Error getting DynamoDb local latest tar.gz location undefined: 403](https://github.com/99x/serverless-dynamodb-local/issues/294#issuecomment-1462496399)
+- [DynamoDB Local is not available for stage: dev](https://github.com/99x/serverless-dynamodb-local/issues/225#issuecomment-498023248)
 
 # References
 

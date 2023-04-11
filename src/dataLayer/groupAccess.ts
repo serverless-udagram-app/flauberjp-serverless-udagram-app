@@ -3,7 +3,7 @@ import * as AWS from "aws-sdk";
 
 export class GroupAccess {
   constructor(
-    private readonly docClient = new AWS.DynamoDB.DocumentClient(),
+    private readonly docClient = createDynamoDBClient(),
     private readonly groupsTable = process.env.GROUPS_TABLE
   ) {}
 
@@ -17,21 +17,33 @@ export class GroupAccess {
       })
       .promise();
     const items = result.Items;
-    console.log("groups", JSON.stringify(items));
+    console.log("Groups", JSON.stringify(items));
     return items as Group[];
   }
 
   async createGroup(group: Group): Promise<Group> {
     console.log(`Creating a group with id ${group.id}`);
 
-    const result = await this.docClient
-      .scan({
+    await this.docClient
+      .put({
         TableName: this.groupsTable,
         Item: group,
       })
       .promise();
 
-    const items = result.Items;
+    console.info("Group", group);
     return group;
   }
+}
+
+function createDynamoDBClient() {
+  if (process.env.IS_OFFLINE === "true") {
+    console.log("Creating a local DynamoDB instance");
+    return new AWS.DynamoDB.DocumentClient({
+      region: "localhost",
+      endpoint: "http://localhost:8000",
+    });
+  }
+  console.log("Creating an AWS DynamoDB instance");
+  return new AWS.DynamoDB.DocumentClient();
 }
