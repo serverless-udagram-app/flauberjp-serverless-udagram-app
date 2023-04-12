@@ -5,6 +5,7 @@ plugins:
   - serverless-plugin-typescript
   - serverless-dynamodb-local
   - serverless-offline
+  - serverless-plugin-canary-deployments
 
 provider:
   name: aws
@@ -54,6 +55,11 @@ provider:
             - dynamodb:PutItem
             - dynamodb:DeleteItem
           Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.CONNECTIONS_TABLE}
+        - Effect: Allow
+          Action:
+            - codedeploy:*
+          Resource:
+            - "*"
 
   httpApi:
     cors: true
@@ -115,6 +121,9 @@ functions:
           request:
             schemas:
               application/json: ${file(models/create-group-request.json)}
+    deploymentSettings:
+      type: Canary10Percent30Minutes
+      alias: Live
 
   GetGroups:
     handler: src/lambda/http/getGroups.handler
