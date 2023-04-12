@@ -1,5 +1,8 @@
 import { Group } from "../models/Group";
 import * as AWS from "aws-sdk";
+import * as AWSXRay from "aws-xray-sdk";
+
+const XAWS = AWSXRay.captureAWS(AWS);
 
 export class GroupAccess {
   constructor(
@@ -45,5 +48,5 @@ function createDynamoDBClient() {
     });
   }
   console.log("Creating an AWS DynamoDB instance");
-  return new AWS.DynamoDB.DocumentClient();
+  return new XAWS.DynamoDB.DocumentClient();
 }

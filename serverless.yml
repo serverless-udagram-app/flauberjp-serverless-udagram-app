@@ -60,7 +60,9 @@ provider:
             - codedeploy:*
           Resource:
             - "*"
-
+  tracing:
+    lambda: true
+    apiGateway: true
   httpApi:
     cors: true
 
